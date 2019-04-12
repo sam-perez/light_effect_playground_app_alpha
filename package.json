@@ -1,0 +1,32 @@
+{
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "eject": "expo eject",
+    "test": "node ./node_modules/jest/bin/jest.js --watchAll"
+  },
+  "jest": {
+    "preset": "jest-expo"
+  },
+  "dependencies": {
+    "@expo/samples": "2.1.1",
+    "bluebird": "^3.5.4",
+    "buffer": "^5.2.1",
+    "expo": "^32.0.0",
+    "expokit": "32.0.4",
+    "ramda": "^0.26.1",
+    "react": "16.5.0",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react-native-audio": "https://github.com/migdonio1/react-native-audio.git#cc3aaf0b0ca1cda4c55d28fbf94641e4bf00f92e",
+    "react-native-background-timer": "^2.1.1",
+    "react-native-ble-plx": "^1.0.1",
+    "react-navigation": "^3.0.9"
+  },
+  "devDependencies": {
+    "babel-preset-expo": "^5.0.0",
+    "jest-expo": "^32.0.0"
+  },
+  "private": true
+}

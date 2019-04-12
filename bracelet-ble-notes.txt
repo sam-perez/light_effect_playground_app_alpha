@@ -1,0 +1,13 @@
+Handle: 0x0008 (Unknown: Unknown)
+[Service UUID: Unknown (0xfff0)]
+[UUID: Unknown (0xfff3)]
+
+Value: 7e070503RRGGBB00ef
+
+
+ELK-BLEDOM
+
+
+service uuid:
+
+0000fff0-0000-1000-8000-00805f9b34fb
