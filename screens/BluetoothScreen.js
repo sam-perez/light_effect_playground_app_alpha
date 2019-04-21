@@ -14,6 +14,46 @@ import Buffer from 'buffer';
 
 import { BleManager } from 'react-native-ble-plx';
 
+import config from '../helpers/config';
+
+import { AsyncStorage } from 'react-native';
+
+const {
+  stateManager: { container: stateManagerContainer, STATE_MANAGER_NAMES }
+} = config;
+
+const localDataManager = (() => {
+  const SAVED_BLUETOOTH_BRACELETS_KEY = 'SAVED_BLUETOOTH_BRACELETS_KEY';
+  const savedBluetoothBraceletsStateManager = stateManagerContainer.getStateManager({
+    name: STATE_MANAGER_NAMES.SAVED_BLUETOOTH_BRACELETS
+  });
+
+  return {
+    updateSavedBraceles: async ({ savedBraceletsData }) => {
+      await savedBluetoothBraceletsStateManager.asyncUpdate(async () => {
+        await AsyncStorage.setItem(
+          SAVED_BLUETOOTH_BRACELETS_KEY,
+          JSON.stringify(savedBraceletsData)
+        );
+
+        return { savedBraceletsData };
+      });
+    },
+    loadSavedBracelets: async () => {
+      await savedBluetoothBraceletsStateManager.asyncUpdate(async () => {
+        const savedBraceletsJSON =
+                    (await AsyncStorage.getItem(SAVED_BLUETOOTH_BRACELETS_KEY)) || '[]';
+
+        return {
+          savedBraceletsData: JSON.parse(savedBraceletsJSON)
+        };
+      });
+    }
+  };
+})();
+
+localDataManager.loadSavedBracelets();
+
 const BTManager = new BleManager();
 
 const getBluetoothHelper = () => {
@@ -107,59 +147,63 @@ const getBluetoothHelper = () => {
 const bluetoothHelper = getBluetoothHelper();
 
 export default class BluetoothScreen extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      devices: [],
-      loadingDevices: false
+    static navigationOptions = {
+      title: 'BLUETOOTH'
     };
-  }
 
-  async scanForDevices() {
-    this.setState({ loadingDevices: true });
-    const { devices } = await bluetoothHelper.getObservableDevices({ msToScanFor: 5000 });
+    constructor(props) {
+      super(props);
 
-    this.setState({ devices, loadingDevices: false });
-  }
-
-  render() {
-    const { devices, loadingDevices } = this.state;
-
-    if (loadingDevices) {
-      return <ActivityIndicator size="large" color="#0000ff" />;
+      this.state = {
+        devices: [],
+        loadingDevices: false
+      };
     }
 
-    return (
-      <ScrollView style={styles.container}>
-        <Button
-          onPress={() => {
-            this.scanForDevices();
-          }}
-          title="Click here to scan for devices"
-        />
+    async scanForDevices() {
+      this.setState({ loadingDevices: true });
+      const { devices } = await bluetoothHelper.getObservableDevices({ msToScanFor: 5000 });
 
-        {devices.length === 0 ? (
-          <Text>No matching devices found yet, scan for devices!</Text>
-        ) : (
-          <View>
-            <FlatList
-              data={R.map(
-                device => ({
-                  key: device.id,
-                  device
-                }),
-                devices
-              )}
-              renderItem={({ item: { device } }) => (
-                <LEDWristBandDeviceComponent style={styles.item} device={device} />
-              )}
-            />
-          </View>
-        )}
-      </ScrollView>
-    );
-  }
+      this.setState({ devices, loadingDevices: false });
+    }
+
+    render() {
+      const { devices, loadingDevices } = this.state;
+
+      if (loadingDevices) {
+        return <ActivityIndicator size="large" color="#0000ff" />;
+      }
+
+      return (
+        <ScrollView style={styles.container}>
+          <Button
+            onPress={() => {
+              this.scanForDevices();
+            }}
+            title="Click here to scan for devices"
+          />
+
+          {devices.length === 0 ? (
+            <Text>No matching devices found yet, scan for devices!</Text>
+          ) : (
+            <View>
+              <FlatList
+                data={R.map(
+                  device => ({
+                    key: device.id,
+                    device
+                  }),
+                  devices
+                )}
+                renderItem={({ item: { device } }) => (
+                  <LEDWristBandDeviceComponent style={styles.item} device={device} />
+                )}
+              />
+            </View>
+          )}
+        </ScrollView>
+      );
+    }
 }
 
 class LEDWristBandDeviceComponent extends React.Component {
